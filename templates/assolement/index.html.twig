@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h2>Liste des assolements</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parcelle</th>
+            <th>Culture</th>
+            <th>Date de semis</th>
+            <th>Date de récolte</th>
+            <th>Campagne</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in assolements %}
+            <tr>
+                <td>{{ a.parcelle.nom }}</td>
+                <td>{{ a.culture.nom }}</td>
+                <td>{{ a.dateSemis|date('d/m/Y') }}</td>
+                <td>{{ a.dateRecolte ? a.dateRecolte|date('d/m/Y') : '—' }}</td>
+                <td>{{ a.campagne }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('assolement_new') }}" class="btn btn-primary">Ajouter un assolement</a>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des parcelles{% endblock %}
+
+{% block body %}
+<h1 class="mb-4">Liste des parcelles</h1>
+
+<table class="table table-bordered parcelle-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Surface (ha)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for parcelle in parcelles %}
+            <tr class="{{ cycle(['row-blue', 'row-lightblue'], loop.index0) }}">
+             
+                <td>{{ parcelle.nom }}</td>
+                <td>{{ parcelle.surface }}</td>
+                <td>
+                    <a href="{{ path('parcelle_edit', {id: parcelle.id}) }}" class="btn btn-sm btn-primary">
+                        Modifier
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    .row-blue {
+        background-color: #d0e4ff;
+    }
+    .row-lightblue {
+        background-color: #e8f2ff;
+    }
+</style>
+
+{% endblock %}

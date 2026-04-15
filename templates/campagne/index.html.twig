@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h2>Liste des campagnes</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Année</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in campagnes %}
+            <tr>
+                <td>{{ c.annee }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('campagne_new') }}" class="btn btn-primary">Ajouter une campagne</a>
+{% endblock %}

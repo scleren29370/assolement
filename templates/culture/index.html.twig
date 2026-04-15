@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des cultures{% endblock %}
+
+{% block body %}
+<h1 class="mb-4">Liste des cultures</h1>
+
+<a href="{{ path('culture_new') }}" class="btn btn-success mb-3">Ajouter une culture</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for culture in cultures %}
+            <tr class="{{ cycle(['row-blue', 'row-lightblue'], loop.index0) }}">
+                <td>{{ culture.id }}</td>
+                <td>{{ culture.nom }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    .row-blue { background-color: #d0e4ff; }
+    .row-lightblue { background-color: #e8f2ff; }
+</style>
+
+{% endblock %}

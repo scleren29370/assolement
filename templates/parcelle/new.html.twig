@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle parcelle{% endblock %}
+
+{% block body %}
+<h1>Créer une nouvelle parcelle</h1>
+
+{{ form_start(form) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.surface) }}
+
+    <button class="btn btn-primary">Enregistrer</button>
+{{ form_end(form) }}
+
+{% endblock %}
