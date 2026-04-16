@@ -5,28 +5,42 @@ namespace App\Controller;
 use App\Entity\Assolement;
 use App\Form\AssolementType;
 use App\Repository\AssolementRepository;
+use App\Repository\CampagneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/assolement')]
+#[Route('/rotation')]
 class AssolementController extends AbstractController
 {
     #[Route('/', name: 'assolement_index')]
-    public function index(AssolementRepository $repo): Response
+    public function index(Request $request, AssolementRepository $repo, CampagneRepository $campRepo): Response
     {
+        $idCampagne = $request->query->get('idCampagne');
+        $campagne = $idCampagne ? $campRepo->find($idCampagne) : null;
+
+        $assolements = $repo->findBy(['campagne' => $campagne]);
+
         return $this->render('assolement/index.html.twig', [
-            'assolements' => $repo->findAll(),
+            'assolements' => $assolements,
+            'campagne' => $campagne,
         ]);
     }
 
     #[Route('/new', name: 'assolement_new')]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, CampagneRepository $campRepo): Response
     {
+        $idCampagne = $request->query->get('idCampagne');
+        $campagne = $campRepo->find($idCampagne);
+
         $assolement = new Assolement();
-        $form = $this->createForm(AssolementType::class, $assolement);
+        $assolement->setCampagne($campagne);
+
+        $form = $this->createForm(AssolementType::class, $assolement, [
+            'campagne' => $campagne,
+        ]);
 
         $form->handleRequest($request);
 
@@ -34,41 +48,27 @@ class AssolementController extends AbstractController
             $em->persist($assolement);
             $em->flush();
 
-            $this->addFlash('success', 'Assolement ajouté avec succès');
-            return $this->redirectToRoute('assolement_index');
+            return $this->redirectToRoute('assolement_index', [
+                'idCampagne' => $campagne->getId(),
+            ]);
         }
 
         return $this->render('assolement/new.html.twig', [
             'form' => $form->createView(),
+            'campagne' => $campagne,
         ]);
     }
 
-    public function getCampagnes(AssolementRepository $repo): array
-{
-    return $repo->createQueryBuilder('a')
-        ->select('DISTINCT a.campagne')
-        ->orderBy('a.campagne', 'DESC')
-        ->getQuery()
-        ->getSingleColumnResult();
-}
+    #[Route('/campagne/{id}', name: 'assolement_par_campagne')]
+    public function parCampagne(int $id, AssolementRepository $repo, CampagneRepository $campRepo): Response
+    {
+        $campagne = $campRepo->find($id);
 
-#[Route('/assolement/campagne/{id}', name: 'assolement_par_campagne')]
-public function parCampagne(
-    int $id,
-    AssolementRepository $repo
-): Response {
-    $assolements = $repo->createQueryBuilder('a')
-        ->join('a.campagne', 'c')
-        ->where('c.id = :id')
-        ->setParameter('id', $id)
-        ->orderBy('a.dateSemis', 'ASC')
-        ->getQuery()
-        ->getResult();
+       $assolements = $repo->findBy(['campagne' => $campagne]);
 
-    return $this->render('assolement/index.html.twig', [
-        'assolements' => $assolements,
-        'campagne_id' => $id,
-    ]);
+        return $this->render('assolement/index.html.twig', [
+            'assolements' => $assolements,
+            'campagne' => $campagne,
+        ]);
+    }
 }
-}
-

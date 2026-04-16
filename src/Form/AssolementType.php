@@ -17,19 +17,19 @@ class AssolementType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        // 🔥 Récupération de la campagne transmise par le contrôleur
+        $campagne = $options['campagne'];
+
         $builder
             ->add('parcelle', EntityType::class, [
                 'class' => Parcelle::class,
                 'choice_label' => 'nom',
                 'label' => 'Parcelle',
-                'query_builder' => function (ParcelleRepository $repo) use ($options) {
-                    $campagne = $options['campagne'];
-
+                'query_builder' => function (ParcelleRepository $repo) use ($campagne) {
                     return $repo->createQueryBuilder('p')
                         ->leftJoin('p.assolements', 'a')
-                        ->leftJoin('a.campagne', 'c')
-                        ->andWhere('c.id != :campagneId OR c.id IS NULL')
-                        ->setParameter('campagneId', $campagne?->getId());
+                        ->andWhere('a.campagne != :campagne OR a.id IS NULL')
+                        ->setParameter('campagne', $campagne);
                 },
             ])
             ->add('culture', EntityType::class, [
@@ -58,7 +58,7 @@ class AssolementType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Assolement::class,
-            'campagne' => null,   // 🔥 indispensable pour ton filtrage
+            'campagne' => null, // 🔥 indispensable
         ]);
     }
 }

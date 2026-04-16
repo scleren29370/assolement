@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AssolementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AssolementRepository::class)]
@@ -21,15 +23,26 @@ class Assolement
     #[ORM\JoinColumn(nullable: false)]
     private ?Culture $culture = null;
 
+    #[ORM\Column(type: 'float')]
+    private ?float $surface = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Campagne $campagne = null;
+
     #[ORM\Column(type: 'date')]
     private ?\DateTimeInterface $dateSemis = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $dateRecolte = null;
 
-  #[ORM\ManyToOne]
-#[ORM\JoinColumn(nullable: false)]
-private ?Campagne $campagne = null;
+    #[ORM\OneToMany(mappedBy: 'assolement', targetEntity: Traitement::class, orphanRemoval: true)]
+    private Collection $traitements;
+
+    public function __construct()
+    {
+        $this->traitements = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -41,7 +54,7 @@ private ?Campagne $campagne = null;
         return $this->parcelle;
     }
 
-    public function setParcelle(?Parcelle $parcelle): static
+    public function setParcelle(?Parcelle $parcelle): self
     {
         $this->parcelle = $parcelle;
         return $this;
@@ -52,9 +65,31 @@ private ?Campagne $campagne = null;
         return $this->culture;
     }
 
-    public function setCulture(?Culture $culture): static
+    public function setCulture(?Culture $culture): self
     {
         $this->culture = $culture;
+        return $this;
+    }
+
+    public function getSurface(): ?float
+    {
+        return $this->surface;
+    }
+
+    public function setSurface(float $surface): self
+    {
+        $this->surface = $surface;
+        return $this;
+    }
+
+    public function getCampagne(): ?Campagne
+    {
+        return $this->campagne;
+    }
+
+    public function setCampagne(?Campagne $campagne): self
+    {
+        $this->campagne = $campagne;
         return $this;
     }
 
@@ -63,7 +98,7 @@ private ?Campagne $campagne = null;
         return $this->dateSemis;
     }
 
-    public function setDateSemis(\DateTimeInterface $dateSemis): static
+    public function setDateSemis(\DateTimeInterface $dateSemis): self
     {
         $this->dateSemis = $dateSemis;
         return $this;
@@ -74,20 +109,38 @@ private ?Campagne $campagne = null;
         return $this->dateRecolte;
     }
 
-    public function setDateRecolte(?\DateTimeInterface $dateRecolte): static
+    public function setDateRecolte(?\DateTimeInterface $dateRecolte): self
     {
         $this->dateRecolte = $dateRecolte;
         return $this;
     }
 
-public function getCampagne(): ?Campagne
-{
-    return $this->campagne;
-}
+    /**
+     * @return Collection<int, Traitement>
+     */
+    public function getTraitements(): Collection
+    {
+        return $this->traitements;
+    }
 
-public function setCampagne(?Campagne $campagne): static
-{
-    $this->campagne = $campagne;
-    return $this;
-}
+    public function addTraitement(Traitement $traitement): self
+    {
+        if (!$this->traitements->contains($traitement)) {
+            $this->traitements->add($traitement);
+            $traitement->setAssolement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTraitement(Traitement $traitement): self
+    {
+        if ($this->traitements->removeElement($traitement)) {
+            if ($traitement->getAssolement() === $this) {
+                $traitement->setAssolement(null);
+            }
+        }
+
+        return $this;
+    }
 }

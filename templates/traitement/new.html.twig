@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h2>Ajouter un traitement</h2>
+
+<div class="card p-4 shadow-sm">
+    {{ form_start(form) }}
+        {{ form_row(form.type) }}
+        {{ form_row(form.produit) }}
+        {{ form_row(form.dose) }}
+        {{ form_row(form.unite) }}
+        {{ form_row(form.dateTraitement) }}
+        {{ form_row(form.commentaire) }}
+
+        <button class="btn btn-success mt-3">Enregistrer</button>
+    {{ form_end(form) }}
+</div>
+
+<a href="{{ path('assolement_par_campagne', { id: assolement.campagne.id }) }}"
+   class="btn btn-secondary mt-3">
+    Retour
+</a>
+{% endblock %}
