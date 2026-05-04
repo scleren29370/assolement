@@ -11,6 +11,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+
 
 #[Route('/rotation')]
 class AssolementController extends AbstractController
@@ -117,4 +120,41 @@ class AssolementController extends AbstractController
             'totalSurface' => $totalSurface,
         ]);
     }
+
+    #[Route('/recolte/{id}', name: 'assolement_recolte')]
+public function recolte(
+    Assolement $assolement,
+    Request $request,
+    EntityManagerInterface $em
+): Response {
+
+    $form = $this->createFormBuilder($assolement)
+        ->add('dateRecolte', DateType::class, [
+            'widget' => 'single_text',
+            'required' => true,
+            'label' => 'Date de récolte'
+        ])
+        ->add('tonnage', NumberType::class, [
+            'required' => true,
+            'label' => 'Tonnage (t)',
+            'scale' => 2,
+        ])
+        ->getForm();
+
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        $em->flush();
+
+        return $this->redirectToRoute('assolement_par_campagne', [
+            'id' => $assolement->getCampagne()->getId(),
+        ]);
+    }
+
+    return $this->render('assolement/recolte.html.twig', [
+        'assolement' => $assolement,
+        'form' => $form->createView(),
+    ]);
+}
 }

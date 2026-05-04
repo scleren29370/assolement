@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Récolte — {{ assolement.parcelle.nom }}{% endblock %}
+
+{% block body %}
+
+<h1 class="mb-4">🌾 Saisie de la récolte</h1>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-warning">
+        Parcelle : {{ assolement.parcelle.nom }}  
+        — Culture : {{ assolement.culture.nom }}
+    </div>
+
+    <div class="card-body">
+        {{ form_start(form) }}
+
+        <div class="mb-3">
+            {{ form_row(form.dateRecolte) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.tonnage) }}
+        </div>
+
+        <button class="btn btn-success">💾 Enregistrer</button>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<a href="{{ path('assolement_par_campagne', {id: assolement.campagne.id}) }}"
+   class="btn btn-secondary mt-3">
+    ⬅ Retour
+</a>
+
+{% endblock %}

@@ -143,4 +143,27 @@ class Assolement
 
         return $this;
     }
+
+    #[ORM\Column(type: 'float', nullable: true)]
+private ?float $tonnage = null;
+
+public function getTonnage(): ?float
+{
+    return $this->tonnage;
+}
+
+public function setTonnage(?float $tonnage): self
+{
+    $this->tonnage = $tonnage;
+    return $this;
+}
+
+public function getRendement(): ?float
+{
+    if ($this->tonnage === null || $this->surface === null || $this->surface == 0) {
+        return null;
+    }
+
+    return round($this->tonnage / $this->surface, 2);
+}
 }

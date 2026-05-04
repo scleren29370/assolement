@@ -41,9 +41,9 @@
                 <tr>
                     <th>Parcelle</th>
                     <th>Culture</th>
-                    <th>Date de semis</th>
-                    <th>Date de récolte</th>
-                    <th>Campagne</th>
+                    <th>Semis</th>
+                    <th>Récolte</th>
+                    <th>Rendement</th>
                     <th>Traitements</th>
                 </tr>
             </thead>
@@ -54,8 +54,25 @@
                         <td>{{ a.parcelle.nom }}</td>
                         <td>{{ a.culture.nom }}</td>
                         <td>{{ a.dateSemis ? a.dateSemis|date('d/m/Y') : '-' }}</td>
-                        <td>{{ a.dateRecolte ? a.dateRecolte|date('d/m/Y') : '-' }}</td>
-                        <td>{{ a.campagne.annee }}</td>
+
+                        <td>
+                            {% if a.dateRecolte %}
+                                {{ a.dateRecolte|date('d/m/Y') }} — {{ a.tonnage }} t
+                            {% else %}
+                                <a href="{{ path('assolement_recolte', {id: a.id}) }}"
+                                   class="btn btn-warning btn-sm">
+                                    🌾 Saisir récolte
+                                </a>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if a.rendement %}
+                                {{ a.rendement }} t/ha
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
 
                         <td>
                             <button class="btn btn-sm btn-outline-primary"
@@ -66,7 +83,7 @@
                         </td>
                     </tr>
 
-                    {# --- Ligne accordéon --- #}
+                    {# --- Ligne accordéon des traitements --- #}
                     <tr class="collapse" id="traitements-{{ a.id }}">
                         <td colspan="6">
                             <div class="p-3 border rounded bg-light">
