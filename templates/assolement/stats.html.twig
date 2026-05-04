@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques — Campagne {{ campagne.annee }}{% endblock %}
+
+{% block body %}
+
+<h1 class="mb-4">📊 Statistiques de la campagne {{ campagne.annee }}</h1>
+
+<a href="{{ path('assolement_index', {idCampagne: campagne.id}) }}" class="btn btn-secondary mb-4">
+    ⬅ Retour aux assolements
+</a>
+
+<div class="row">
+    <!-- Camembert -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                Répartition des cultures
+            </div>
+            <div class="card-body">
+                <canvas id="chartCultures"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau surfaces + pourcentages -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                Détails des surfaces
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Culture</th>
+                            <th>Surface (ha)</th>
+                            <th>Pourcentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td>{{ row.culture }}</td>
+                                <td>{{ row.total|number_format(2, ',', ' ') }}</td>
+                                <td>{{ percentages[row.culture] }} %</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-info fw-bold">
+                            <td>Total</td>
+                            <td>{{ totalSurface|number_format(2, ',', ' ') }}</td>
+                            <td>100 %</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('chartCultures');
+
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: {{ labels|raw }},
+        datasets: [{
+            data: {{ values|raw }},
+            backgroundColor: [
+                '#4e79a7', '#f28e2b', '#e15759',
+                '#76b7b2', '#59a14f', '#edc949',
+                '#af7aa1', '#ff9da7', '#9c755f'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,95 +1,129 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Assolements — {{ campagne ? campagne.annee : '' }}{% endblock %}
+
 {% block body %}
-<h2>Liste des assolements</h2>
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Parcelle</th>
-            <th>Culture</th>
-            <th>Date de semis</th>
-            <th>Date de récolte</th>
-            <th>Campagne</th>
-            <th>Traitements</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for a in assolements %}
-            <tr>
-                <td>{{ a.parcelle.nom }}</td>
-                <td>{{ a.culture.nom }}</td>
-                <td>{{ a.dateSemis|date('d/m/Y') }}</td>
-                <td>{{ a.dateRecolte ? a.dateRecolte|date('d/m/Y') : '—' }}</td>
-                <td>{{ a.campagne.annee }}</td>
+<h1 class="mb-4">🌱 Assolements — 
+    {% if campagne %}
+        Campagne {{ campagne.annee }}
+    {% else %}
+        Aucune campagne sélectionnée
+    {% endif %}
+</h1>
 
-                <td>
-                    <button class="btn btn-sm btn-outline-primary"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#traitements-{{ a.id }}">
-                        Voir traitements
-                    </button>
-                </td>
-            </tr>
+{% if campagne %}
+    <a href="{{ path('assolement_stats', {idCampagne: campagne.id}) }}" 
+       class="btn btn-info mb-3">
+        📊 Voir les statistiques de la campagne {{ campagne.annee }}
+    </a>
+{% endif %}
 
-            <!-- Ligne accordéon -->
-            <tr class="collapse" id="traitements-{{ a.id }}">
-                <td colspan="6">
-                    <div class="p-3 border rounded bg-light">
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0">Traitements</h5>
-
-                            <a href="{{ path('traitement_new', { idAssolement: a.id }) }}"
-                               class="btn btn-success btn-sm">
-                                + Ajouter un traitement
-                            </a>
-                        </div>
-
-                        {% if a.traitements is empty %}
-                            <p class="text-muted">Aucun traitement enregistré.</p>
-                        {% else %}
-                            <table class="table table-sm table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Produit</th>
-                                        <th>Dose</th>
-                                        <th>Unité</th>
-                                        <th>Date</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for t in a.traitements %}
-                                        <tr>
-                                            <td>{{ t.type }}</td>
-                                            <td>{{ t.produit }}</td>
-                                            <td>{{ t.dose }}</td>
-                                            <td>{{ t.unite }}</td>
-                                            <td>{{ t.dateTraitement|date('d/m/Y') }}</td>
-                                            <td>
-                                                <a href="{{ path('traitement_edit', { id: t.id }) }}"
-                                                   class="btn btn-primary btn-sm">
-                                                    Modifier
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
-
-        {% endfor %}
-    </tbody>
-</table>
-
-<a href="{{ path('assolement_new', {idCampagne: campagne.id}) }}" class="btn btn-primary">
-    Ajouter un assolement
+<a href="{{ path('assolement_new', {idCampagne: campagne ? campagne.id : null}) }}" 
+   class="btn btn-primary mb-4">
+    ➕ Ajouter un assolement
 </a>
 
-{% endblock %}
+{% if assolements is empty %}
+    <div class="alert alert-warning">
+        Aucun assolement trouvé pour cette campagne.
+    </div>
+{% else %}
 
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        Liste des assolements
+    </div>
+
+    <div class="card-body p-0">
+        <table class="table table-striped table-bordered mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Parcelle</th>
+                    <th>Culture</th>
+                    <th>Date de semis</th>
+                    <th>Date de récolte</th>
+                    <th>Campagne</th>
+                    <th>Traitements</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for a in assolements %}
+                    <tr>
+                        <td>{{ a.parcelle.nom }}</td>
+                        <td>{{ a.culture.nom }}</td>
+                        <td>{{ a.dateSemis ? a.dateSemis|date('d/m/Y') : '-' }}</td>
+                        <td>{{ a.dateRecolte ? a.dateRecolte|date('d/m/Y') : '-' }}</td>
+                        <td>{{ a.campagne.annee }}</td>
+
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#traitements-{{ a.id }}">
+                                Voir traitements
+                            </button>
+                        </td>
+                    </tr>
+
+                    {# --- Ligne accordéon --- #}
+                    <tr class="collapse" id="traitements-{{ a.id }}">
+                        <td colspan="6">
+                            <div class="p-3 border rounded bg-light">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0">Traitements</h5>
+
+                                    <a href="{{ path('traitement_new', { idAssolement: a.id }) }}"
+                                       class="btn btn-success btn-sm">
+                                        + Ajouter un traitement
+                                    </a>
+                                </div>
+
+                                {% if a.traitements is empty %}
+                                    <p class="text-muted">Aucun traitement enregistré.</p>
+                                {% else %}
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Produit</th>
+                                                <th>Dose</th>
+                                                <th>Unité</th>
+                                                <th>Date</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for t in a.traitements %}
+                                                <tr>
+                                                    <td>{{ t.type }}</td>
+                                                    <td>{{ t.produit }}</td>
+                                                    <td>{{ t.dose }}</td>
+                                                    <td>{{ t.unite }}</td>
+                                                    <td>{{ t.dateTraitement|date('d/m/Y') }}</td>
+                                                    <td>
+                                                        <a href="{{ path('traitement_edit', { id: t.id }) }}"
+                                                           class="btn btn-primary btn-sm">
+                                                            Modifier
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

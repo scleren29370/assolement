@@ -71,4 +71,15 @@ public function edit(
     ]);
 }
 
+#[Route('/traitement/assolement/{id}', name: 'traitement_assolement')]
+public function traitementsParAssolement(int $id, AssolementRepository $repo): Response
+{
+    $assolement = $repo->find($id);
+
+    return $this->render('traitement/index.html.twig', [
+        'assolement' => $assolement,
+        'traitements' => $assolement->getTraitements(),
+    ]);
+}
+
 }

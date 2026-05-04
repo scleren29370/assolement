@@ -16,12 +16,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class AssolementController extends AbstractController
 {
     #[Route('/', name: 'assolement_index')]
-    public function index(Request $request, AssolementRepository $repo, CampagneRepository $campRepo): Response
-    {
+    public function index(
+        Request $request,
+        AssolementRepository $repo,
+        CampagneRepository $campRepo
+    ): Response {
         $idCampagne = $request->query->get('idCampagne');
         $campagne = $idCampagne ? $campRepo->find($idCampagne) : null;
 
-        $assolements = $repo->findBy(['campagne' => $campagne]);
+        $assolements = $campagne
+            ? $repo->findByCampagne($idCampagne)
+            : [];
 
         return $this->render('assolement/index.html.twig', [
             'assolements' => $assolements,
@@ -30,8 +35,11 @@ class AssolementController extends AbstractController
     }
 
     #[Route('/new', name: 'assolement_new')]
-    public function new(Request $request, EntityManagerInterface $em, CampagneRepository $campRepo): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $em,
+        CampagneRepository $campRepo
+    ): Response {
         $idCampagne = $request->query->get('idCampagne');
         $campagne = $campRepo->find($idCampagne);
 
@@ -45,6 +53,9 @@ class AssolementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $assolement->setSurface($assolement->getParcelle()->getSurface());
+
             $em->persist($assolement);
             $em->flush();
 
@@ -60,15 +71,50 @@ class AssolementController extends AbstractController
     }
 
     #[Route('/campagne/{id}', name: 'assolement_par_campagne')]
-    public function parCampagne(int $id, AssolementRepository $repo, CampagneRepository $campRepo): Response
-    {
+    public function parCampagne(
+        int $id,
+        AssolementRepository $repo,
+        CampagneRepository $campRepo
+    ): Response {
         $campagne = $campRepo->find($id);
 
-       $assolements = $repo->findBy(['campagne' => $campagne]);
+        $assolements = $repo->findByCampagne($id);
 
         return $this->render('assolement/index.html.twig', [
             'assolements' => $assolements,
             'campagne' => $campagne,
+        ]);
+    }
+
+    #[Route('/stats/{idCampagne}', name: 'assolement_stats')]
+    public function stats(
+        int $idCampagne,
+        AssolementRepository $repo,
+        CampagneRepository $campRepo
+    ): Response {
+        $campagne = $campRepo->find($idCampagne);
+
+        $data = $repo->sumSurfaceByCulture($idCampagne);
+
+        $labels = array_column($data, 'culture');
+        $values = array_column($data, 'total');
+
+        $totalSurface = array_sum($values);
+
+        $percentages = [];
+        foreach ($data as $row) {
+            $percentages[$row['culture']] = $totalSurface > 0
+                ? round(($row['total'] / $totalSurface) * 100, 1)
+                : 0;
+        }
+
+        return $this->render('assolement/stats.html.twig', [
+            'campagne' => $campagne,
+            'labels' => json_encode($labels),
+            'values' => json_encode($values),
+            'data' => $data,
+            'percentages' => $percentages,
+            'totalSurface' => $totalSurface,
         ]);
     }
 }

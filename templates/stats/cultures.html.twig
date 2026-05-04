@@ -1,0 +1,57 @@
+<h2>Répartition des cultures</h2>
+
+<!-- Conteneur pour limiter la taille -->
+<div style="max-width: 400px; height: 400px; margin: 0 auto;">
+    <canvas id="camembertCultures"></canvas>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Plugin pour afficher les labels dans le camembert -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+    const ctx = document.getElementById('camembertCultures');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ labels|raw }},
+            datasets: [{
+                data: {{ values|raw }},
+                backgroundColor: [
+                    '#3498db', '#e74c3c', '#2ecc71', '#9b59b6',
+                    '#f1c40f', '#1abc9c', '#e67e22'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+
+                // 👉 Affichage du nom + pourcentage dans chaque part
+                datalabels: {
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 13
+                    },
+                    formatter: (value, ctx) => {
+                        const total = ctx.chart.data.datasets[0].data
+                            .reduce((a, b) => a + b, 0);
+
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        const label = ctx.chart.data.labels[ctx.dataIndex];
+
+                        return label + " (" + percentage + "%)";
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+</script>
