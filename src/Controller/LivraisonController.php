@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Campagne;
 use App\Entity\Livraison;
 use App\Form\LivraisonType;
+use App\Repository\AssolementRepository;
+use App\Repository\CampagneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,4 +80,29 @@ class LivraisonController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+#[Route('/livraison/assolements', name: 'livraison_assolements')]
+public function loadAssolements(Request $request, AssolementRepository $repo, CampagneRepository $campagne): Response
+{
+    $cultureId = $request->query->get('culture');
+    
+    $annee = $campagne->findOneBy(['annee'=> date('Y')]);
+$assolements = $repo->findBy([
+    'culture' => $cultureId,
+    'campagne' => $annee,   // objet Campagne
+    'tonnage' => null          // ⭐ pas encore livré
+]);
+
+
+ 
+
+
+    return $this->render('livraison/_assolements.html.twig', [
+        'assolements' => $assolements,
+    ]);
+}
+
+
+
+
+
 }

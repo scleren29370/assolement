@@ -45,13 +45,14 @@ class AssolementRepository extends ServiceEntityRepository
         ->join('a.campagne', 'c')
         ->where('c.annee = :annee')
         ->andWhere('a.id NOT IN (
-            SELECT IDENTITY(ass.id)
-            FROM App\Entity\Livraison l
-            JOIN l.assolements ass
+            SELECT ass2.id
+            FROM App\Entity\Livraison l2
+            JOIN l2.assolements ass2
         )')
         ->setParameter('annee', $annee)
         ->getQuery()
         ->getResult();
 }
+
 
 }

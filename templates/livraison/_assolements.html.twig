@@ -1,0 +1,14 @@
+{% for a in assolements %}
+    <div class="form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               name="livraison[assolements][]"
+               value="{{ a.id }}"
+               id="livraison_assolements_{{ a.id }}">
+        <label class="form-check-label" for="livraison_assolements_{{ a.id }}">
+            {{ a.parcelle.nom }} ({{ a.surface }} ha)
+        </label>
+    </div>
+{% else %}
+    <p>Aucune parcelle disponible pour cette culture.</p>
+{% endfor %}

@@ -26,7 +26,12 @@
         <hr class="my-4">
 
         <h4>🧩 Parcelles concernées</h4>
-        {{ form_row(form.assolements) }}
+
+        <div id="assolements-container">
+            {% include 'livraison/_assolements.html.twig' with {
+                assolements: form.assolements.vars.choices|map(c => c.data)
+            } %}
+        </div>
 
         <button class="btn btn-success mt-4">💾 Enregistrer</button>
 
@@ -35,4 +40,33 @@
     {{ form_end(form) }}
 
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    $('#livraison_culture').on('change', function () {
+
+        let cultureId = $(this).val();
+
+        if (!cultureId) {
+            $('#assolements-container').html('<p>Choisissez une culture.</p>');
+            return;
+        }
+
+        $.ajax({
+            url: '{{ path("livraison_assolements") }}',
+            method: 'GET',
+            data: { culture: cultureId },
+            success: function (html) {
+                $('#assolements-container').html(html);
+            }
+        });
+    });
+
+});
+</script>
 {% endblock %}
