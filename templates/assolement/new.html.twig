@@ -1,12 +1,73 @@
-{% extends 'base.html.twig' %}
+<div class="container mt-4">
 
-{% block body %}
-<h2>Ajouter un assolement</h2>
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white py-3">
+            <h3 class="mb-0">
+                🌾 Ajouter un assolement
+            </h3>
+        </div>
 
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn btn-success mt-3">Enregistrer</button>
-{{ form_end(form) }}
+        <div class="card-body p-4">
 
-<a href="{{ path('assolement_index') }}" class="btn btn-secondary mt-3">Retour</a>
-{% endblock %}
+            {{ form_start(form) }}
+
+            <!-- SECTION 1 : Parcelle & Culture -->
+            <div class="mb-4 pb-3 border-bottom">
+                <h5 class="text-success mb-3">🌱 Informations culturales</h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Parcelle</label>
+                        {{ form_widget(form.parcelle, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Culture</label>
+                        {{ form_widget(form.culture, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2 : Dates -->
+            <div class="mb-4 pb-3 border-bottom">
+                <h5 class="text-success mb-3">📅 Dates</h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Date de semis</label>
+                        {{ form_widget(form.dateSemis, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Date de récolte (optionnelle)</label>
+                        {{ form_widget(form.dateRecolte, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3 : Campagne -->
+            <div class="mb-4">
+                <h5 class="text-success mb-3">📊 Campagne</h5>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Campagne</label>
+                    {{ form_widget(form.campagne, {'attr': {'class': 'form-select'}}) }}
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ path('assolement_index') }}" class="btn btn-outline-secondary px-4">
+                    ⬅ Retour
+                </a>
+
+                <button class="btn btn-success px-4">
+                    💾 Enregistrer
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+</div>

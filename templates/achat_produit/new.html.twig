@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel achat{% endblock %}
+
+{% block body %}
+
+<h1 class="mb-4">🛒 Nouvel achat de produit</h1>
+
+<a href="{{ path('achat_produit_index') }}" class="btn btn-secondary mb-3">
+    ⬅ Retour à la liste
+</a>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        Saisir un nouvel achat
+    </div>
+
+    <div class="card-body">
+        {{ form_start(form) }}
+
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.produit) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.prixUnitaire) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.quantite) }}
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                {{ form_row(form.dateAchat) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.campagne) }}
+            </div>
+        </div>
+
+        <button class="btn btn-success mt-4">
+            💾 Enregistrer l’achat
+        </button>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+{% endblock %}

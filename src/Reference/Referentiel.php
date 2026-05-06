@@ -13,7 +13,7 @@ class Referentiel
     public const TRAITEMENT_ENGRAIS     = 'engrais';
     public const TRAITEMENT_AUTRE       = 'autre';
 
-    public static function typesTraitement(): array
+    public static function typesProduit(): array
     {
         return [
             self::TRAITEMENT_HERBICIDE,

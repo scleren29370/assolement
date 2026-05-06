@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau produit{% endblock %}
+
+{% block body %}
+
+<h1 class="mb-4">➕ Nouveau produit</h1>
+
+<a href="{{ path('produit_index') }}" class="btn btn-secondary mb-3">
+    ⬅ Retour à la liste
+</a>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        Ajouter un produit
+    </div>
+
+    <div class="card-body">
+        {{ form_start(form) }}
+
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.nom) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.type) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.unite) }}
+            </div>
+        </div>
+
+        <button class="btn btn-success mt-4">
+            💾 Enregistrer
+        </button>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+{% endblock %}

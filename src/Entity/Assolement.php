@@ -15,28 +15,28 @@ class Assolement
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'assolements')]
     private ?Parcelle $parcelle = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'assolements')]
     private ?Culture $culture = null;
 
-    #[ORM\Column(type: 'float')]
-    private ?float $surface = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'assolements')]
     private ?Campagne $campagne = null;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $dateSemis = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $dateRecolte = null;
 
-    #[ORM\OneToMany(mappedBy: 'assolement', targetEntity: Traitement::class, orphanRemoval: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $tonnage = null;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $surface = null;
+
+    #[ORM\OneToMany(mappedBy: 'assolement', targetEntity: Traitement::class, cascade: ['persist', 'remove'])]
     private Collection $traitements;
 
     public function __construct()
@@ -71,17 +71,6 @@ class Assolement
         return $this;
     }
 
-    public function getSurface(): ?float
-    {
-        return $this->surface;
-    }
-
-    public function setSurface(float $surface): self
-    {
-        $this->surface = $surface;
-        return $this;
-    }
-
     public function getCampagne(): ?Campagne
     {
         return $this->campagne;
@@ -98,7 +87,7 @@ class Assolement
         return $this->dateSemis;
     }
 
-    public function setDateSemis(\DateTimeInterface $dateSemis): self
+    public function setDateSemis(?\DateTimeInterface $dateSemis): self
     {
         $this->dateSemis = $dateSemis;
         return $this;
@@ -114,6 +103,52 @@ class Assolement
         $this->dateRecolte = $dateRecolte;
         return $this;
     }
+
+    public function getTonnage(): ?float
+    {
+        return $this->tonnage;
+    }
+
+    public function setTonnage(?float $tonnage): self
+    {
+        $this->tonnage = $tonnage;
+        return $this;
+    }
+
+    public function getSurface(): ?float
+    {
+        return $this->surface;
+    }
+
+    public function setSurface(?float $surface): self
+    {
+        $this->surface = $surface;
+        return $this;
+    }
+
+    public function getRendement(): ?float
+{
+    if (!$this->tonnage || !$this->surface || $this->surface == 0) {
+        return null;
+    }
+
+    return round($this->tonnage / $this->surface, 2);
+}
+
+public function setRendement(): static
+{
+    if ($this->tonnage && $this->surface && $this->surface > 0) {
+        $this->rendement = round($this->tonnage / $this->surface, 2);
+    } else {
+        $this->rendement = null;
+    }
+
+    return $this;
+}
+
+
+
+    
 
     /**
      * @return Collection<int, Traitement>
@@ -144,26 +179,44 @@ class Assolement
         return $this;
     }
 
-    #[ORM\Column(type: 'float', nullable: true)]
-private ?float $tonnage = null;
+    /**
+     * Coût total des traitements pour cet assolement
+     */
+    public function getCoutTotal(): float
+    {
+        $total = 0;
 
-public function getTonnage(): ?float
-{
-    return $this->tonnage;
-}
+        foreach ($this->traitements as $t) {
+            $cout = $t->getCoutTraitement();
+            if ($cout) {
+                $total += $cout;
+            }
+        }
 
-public function setTonnage(?float $tonnage): self
-{
-    $this->tonnage = $tonnage;
-    return $this;
-}
-
-public function getRendement(): ?float
-{
-    if ($this->tonnage === null || $this->surface === null || $this->surface == 0) {
-        return null;
+        return round($total, 2);
     }
 
-    return round($this->tonnage / $this->surface, 2);
-}
+    /**
+     * Coût par hectare
+     */
+    public function getCoutHa(): ?float
+    {
+        if (!$this->surface || $this->surface == 0) {
+            return null;
+        }
+
+        return round($this->getCoutTotal() / $this->surface, 2);
+    }
+
+    /**
+     * Coût par tonne
+     */
+    public function getCoutTonne(): ?float
+    {
+        if (!$this->tonnage || $this->tonnage == 0) {
+            return null;
+        }
+
+        return round($this->getCoutTotal() / $this->tonnage, 2);
+    }
 }

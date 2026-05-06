@@ -13,31 +13,23 @@ class Traitement
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'traitements')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Assolement $assolement = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $type = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Produit $produit = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $produit = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $dose = null;
+   
+    #[ORM\Column(type: 'float')]
+    private ?float $dose = null;
 
     #[ORM\Column(length: 20)]
     private ?string $unite = null;
 
     #[ORM\Column(type: 'date')]
     private ?\DateTimeInterface $dateTraitement = null;
-
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $commentaire = null;
-
-    /* ============================
-       GETTERS / SETTERS
-       ============================ */
 
     public function getId(): ?int
     {
@@ -55,34 +47,25 @@ class Traitement
         return $this;
     }
 
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): self
-    {
-        $this->type = $type;
-        return $this;
-    }
-
-    public function getProduit(): ?string
+    public function getProduit(): ?Produit
     {
         return $this->produit;
     }
 
-    public function setProduit(string $produit): self
+    public function setProduit(?Produit $produit): self
     {
         $this->produit = $produit;
         return $this;
     }
 
-    public function getDose(): ?string
+
+
+    public function getDose(): ?float
     {
         return $this->dose;
     }
 
-    public function setDose(string $dose): self
+    public function setDose(float $dose): self
     {
         $this->dose = $dose;
         return $this;
@@ -110,14 +93,46 @@ class Traitement
         return $this;
     }
 
-    public function getCommentaire(): ?string
+    /**
+     * Prix unitaire réel basé sur les achats de la campagne
+     */
+    public function getPrixUnitaireEffectif(): ?float
     {
-        return $this->commentaire;
+        if (!$this->produit || !$this->assolement) {
+            return null;
+        }
+
+        $campagne = $this->assolement->getCampagne();
+
+        return $this->produit->getPrixMoyenCampagne($campagne);
     }
 
-    public function setCommentaire(?string $commentaire): self
+    /**
+     * Coût total du traitement pour la parcelle
+     */
+    public function getCoutTraitement(): ?float
     {
-        $this->commentaire = $commentaire;
-        return $this;
+        $prix = $this->getPrixUnitaireEffectif();
+        $surface = $this->assolement?->getSurface();
+
+        if (!$prix || !$this->dose || !$surface) {
+            return null;
+        }
+
+        return round($prix * $this->dose * $surface, 2);
     }
+
+    #[ORM\Column(type: 'text', nullable: true)]
+private ?string $commentaire = null;
+
+public function getCommentaire(): ?string
+{
+    return $this->commentaire;
+}
+
+public function setCommentaire(?string $commentaire): self
+{
+    $this->commentaire = $commentaire;
+    return $this;
+}
 }

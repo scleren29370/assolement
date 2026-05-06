@@ -38,4 +38,20 @@ class AssolementRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findNonLivres(int $annee): array
+{
+    return $this->createQueryBuilder('a')
+        ->join('a.campagne', 'c')
+        ->where('c.annee = :annee')
+        ->andWhere('a.id NOT IN (
+            SELECT IDENTITY(ass.id)
+            FROM App\Entity\Livraison l
+            JOIN l.assolements ass
+        )')
+        ->setParameter('annee', $annee)
+        ->getQuery()
+        ->getResult();
+}
+
 }
